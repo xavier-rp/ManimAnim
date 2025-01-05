@@ -1,8 +1,12 @@
 from manim import *
 
-# manim -qh -p CentripetalAcceleration.py CentripetalAcceleration
+# manim -qh -p CentripetalAcceleration.py CentripetalAcceleration1
 
 class CentripetalAcceleration1(Scene):
+    """
+    This animation displays a particle going around a circle
+    at constant velocity with its velocity and acceleration vectors
+    """
     def construct(self):
         plane = NumberPlane()
         self.add(plane)
@@ -25,6 +29,14 @@ class CentripetalAcceleration1(Scene):
         self.wait(0.5)
 
 class CentripetalAcceleration2(Scene):
+    """
+    This animation displays a particle following a trajectory shaped as a regular polygone since it's reflected
+    each time it collides with the boundary. The animation shows how the orientation of the velocity vector is modified
+    at each collision by an pseudo-(instaneous acceleration) vector.
+
+    The number of sides of the polygone can be increased. At higher values, we start to see that the velocity vector
+    is closer to the tangent of the circle.
+    """
     def construct(self):
         #plane = NumberPlane()
         #self.add(plane)
