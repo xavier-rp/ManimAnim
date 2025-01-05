@@ -2,7 +2,7 @@ from manim import *
 
 # manim -qh -p CentripetalAcceleration.py CentripetalAcceleration
 
-class CentripetalAcceleration(Scene):
+class CentripetalAcceleration1(Scene):
     def construct(self):
         plane = NumberPlane()
         self.add(plane)
@@ -11,11 +11,18 @@ class CentripetalAcceleration(Scene):
 
         self.add(circTraj, particle)
 
-        xaxis = Arrow(start=ORIGIN, end=UP, buff=0)
-        xaxis.move_to([2, 0.5, 0])
-        self.add(xaxis)
+        speedVector = Arrow(start=[2, 0, 0], end=[2, 1, 0], buff=0)
+        accVector = Arrow(start=[2, 0, 0], end=[1.5, 0, 0], buff=0)
 
-        self.play(AnimationGroup(Rotate(xaxis, 2*PI, about_point=ORIGIN), Rotate(particle, 2*PI, about_point=ORIGIN)))
+        self.add(speedVector, accVector)
+
+        self.wait(0.5)
+
+        self.play(AnimationGroup(Rotate(speedVector, 2*PI, about_point=ORIGIN, rate_func=linear),
+                                 Rotate(accVector, 2 * PI, about_point=ORIGIN, rate_func=linear),
+                                 Rotate(particle, 2 * PI, about_point=ORIGIN, rate_func=linear), run_time=10))
+
+        self.wait(0.5)
 
 class CentripetalAcceleration2(Scene):
     def construct(self):
@@ -26,7 +33,7 @@ class CentripetalAcceleration2(Scene):
         ref_begin = [2, 0, 0]
         speedVector = Arrow(start=ref_begin, end=[2, 1, 0], buff=0)
 
-        nbSectors = 6
+        nbSectors = 32
         circTraj = Circle(radius=2)
         speedVector.rotate(PI/nbSectors, about_point=speedVector.get_start())
         speedVector.generate_target()
@@ -41,7 +48,7 @@ class CentripetalAcceleration2(Scene):
 
             line_i = Line(ref_begin, ref_end)
 
-            if i < nbSectors/1:
+            if i < nbSectors/8:
                 newSpeedVector = Arrow(start=ref_end, end=ref_end+np.array(speedVector.get_vector()), buff=0)
                 self.play(AnimationGroup(particle.animate(rate_func=linear, run_time=0.2).move_to(ref_end),
                                          Transform(speedVector, newSpeedVector, rate_func=linear, run_time=0.2),
