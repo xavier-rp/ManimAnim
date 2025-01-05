@@ -15,14 +15,14 @@ class CentripetalAcceleration1(Scene):
 
         self.add(circTraj, particle)
 
-        speedVector = Arrow(start=[2, 0, 0], end=[2, 1, 0], buff=0)
+        velocityVector = Arrow(start=[2, 0, 0], end=[2, 1, 0], buff=0)
         accVector = Arrow(start=[2, 0, 0], end=[1.5, 0, 0], buff=0)
 
-        self.add(speedVector, accVector)
+        self.add(velocityVector, accVector)
 
         self.wait(0.5)
 
-        self.play(AnimationGroup(Rotate(speedVector, 2*PI, about_point=ORIGIN, rate_func=linear),
+        self.play(AnimationGroup(Rotate(velocityVector, 2*PI, about_point=ORIGIN, rate_func=linear),
                                  Rotate(accVector, 2 * PI, about_point=ORIGIN, rate_func=linear),
                                  Rotate(particle, 2 * PI, about_point=ORIGIN, rate_func=linear), run_time=10))
 
@@ -42,50 +42,66 @@ class CentripetalAcceleration2(Scene):
         #self.add(plane)
         particle = Dot([2,0,0])
         self.add(particle)
+
+        #Point of reference when we begin a segment of the trajectory (a side of the polygone)
         ref_begin = [2, 0, 0]
-        speedVector = Arrow(start=ref_begin, end=[2, 1, 0], buff=0)
+        velocityVector = Arrow(start=ref_begin, end=[2, 1, 0], buff=0)
 
-        nbSectors = 32
+        #Chooses the number of sides of the polygone
+        nbSides = 32
         circTraj = Circle(radius=2)
-        speedVector.rotate(PI/nbSectors, about_point=speedVector.get_start())
-        speedVector.generate_target()
 
-        self.add(circTraj, speedVector)
+        #Rotates the velocity vector so it matches the direction of the first segment.
+        velocityVector.rotate(PI/nbSides, about_point=velocityVector.get_start())
+        velocityVector.generate_target()
+
+        self.add(circTraj, velocityVector)
         self.wait(0.5)
 
-        for i in range(1, nbSectors + 1):
+        for i in range(1, nbSides + 1):
 
-            #Point on the circle after completing one side of the polygone
-            ref_end = 2*np.array([np.cos(i*2*PI/nbSectors), np.sin(i*2*PI/nbSectors), 0])
+            #End position of the current side of the polygone being completed
+            ref_end = 2*np.array([np.cos(i*2*PI/nbSides), np.sin(i*2*PI/nbSides), 0])
 
-            line_i = Line(ref_begin, ref_end)
+            currentSide = Line(ref_begin, ref_end)
 
-            if i < nbSectors/8:
-                newSpeedVector = Arrow(start=ref_end, end=ref_end+np.array(speedVector.get_vector()), buff=0)
+            #We only want to display the modification of the orientation of the velocity vector a few times
+            if i < nbSides/8:
+
+                velocityVectorAtEnd = Arrow(start=ref_end, end=ref_end+np.array(velocityVector.get_vector()), buff=0)
                 self.play(AnimationGroup(particle.animate(rate_func=linear, run_time=0.2).move_to(ref_end),
-                                         Transform(speedVector, newSpeedVector, rate_func=linear, run_time=0.2),
-                                         Create(line_i, rate_func=linear, run_time=0.2)))
+                                         Transform(velocityVector, velocityVectorAtEnd, rate_func=linear, run_time=0.2),
+                                         Create(currentSide, rate_func=linear, run_time=0.2)))
 
-                v2 = speedVector.copy()
-                v2.rotate(angle=2 * PI / nbSectors, about_point=v2.get_start())
+                #This object is used to determine the acceleration vector. "velocityVector" is now actually the same
+                #as velocityVectorAtEnd because of how the "Transform" animation works currently
+                velocityAfterCollision = velocityVector.copy()
+                velocityAfterCollision.rotate(angle=2 * PI / nbSides, about_point=velocityAfterCollision.get_start())
 
-                vref = Vector(v2.get_end() - speedVector.get_end())
-                accVect1 = Arrow(start=speedVector.get_start(), end=speedVector.get_start() + vref.get_vector(), buff=0)
-                accVect2 = Arrow(start=speedVector.get_end(), end=v2.get_end(), buff=0)
+                #This object represents an actual vector in cartesian notation. It represents the vector that we have
+                #to add to velocityVectorAtEnd to obtain the velocity after the collision
+                vref = Vector(velocityAfterCollision.get_end() - velocityVector.get_end())
 
-                line_to_center = DashedLine(speedVector.get_start(), [0, 0, 0])
+                #Builds the acceleration vector that will be displayed on the particle
+                accVect1 = Arrow(start=velocityVector.get_start(), end=velocityVector.get_start() + vref.get_vector(), buff=0)
+
+                #Builds the acceleration vector that will be displayed at the tip of the velocity vector
+                accVect2 = Arrow(start=velocityVector.get_end(), end=velocityAfterCollision.get_end(), buff=0)
+
+                line_to_center = DashedLine(velocityVector.get_start(), [0, 0, 0])
                 self.play(AnimationGroup(FadeIn(line_to_center), FadeIn(accVect1), run_time=0.5))
 
                 self.play(ReplacementTransform(accVect1, accVect2), run_time = 0.5)
-                self.play(Rotate(speedVector, angle=2*PI/nbSectors, about_point=speedVector.get_start()), rate_func=linear, run_time = 0.2)
+                self.play(Rotate(velocityVector, angle=2*PI/nbSides, about_point=velocityVector.get_start()), rate_func=linear, run_time = 0.2)
 
                 self.play(AnimationGroup(FadeOut(accVect2, run_time=0.2), FadeOut(line_to_center, run_time=0.2)))
 
             else:
-                self.remove(speedVector)
-                speedVector.rotate(angle=2*PI/nbSectors, about_point=speedVector.get_start())
+                #Rest of the animation where the particle moves at constant velocity around the trajectory
+                self.remove(velocityVector)
+                velocityVector.rotate(angle=2*PI/nbSides, about_point=velocityVector.get_start())
                 self.play(AnimationGroup(particle.animate(rate_func=linear, run_time=0.2).move_to(ref_end),
-                                         Create(line_i, rate_func=linear, run_time=0.2)))
+                                         Create(currentSide, rate_func=linear, run_time=0.2)))
 
 
 
