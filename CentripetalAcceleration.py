@@ -10,15 +10,16 @@ class CentripetalAcceleration1(Scene):
     at constant velocity with its velocity and acceleration vectors
     """
     def construct(self):
-        plane = NumberPlane()
-        self.add(plane)
-        circTraj = Circle(radius=2)
-        particle = Dot([2,0,0])
+        #plane = NumberPlane()
+        #self.add(plane)
+        circTraj = Circle(radius=2, color=BLACK)
+        particle = Dot([2,0,0], color=RED)
+        particle.set_z_index(1)
 
         self.add(circTraj, particle)
 
-        velocityVector = Arrow(start=[2, 0, 0], end=[2, 1, 0], buff=0)
-        accVector = Arrow(start=[2, 0, 0], end=[1.5, 0, 0], buff=0)
+        velocityVector = Arrow(start=[2, 0, 0], end=[2, 1, 0], buff=0, color=BLACK)
+        accVector = Arrow(start=[2, 0, 0], end=[1.5, 0, 0], buff=0, color=BLUE)
 
         self.add(velocityVector, accVector)
 
@@ -26,7 +27,7 @@ class CentripetalAcceleration1(Scene):
 
         self.play(AnimationGroup(Rotate(velocityVector, 2*PI, about_point=ORIGIN, rate_func=linear),
                                  Rotate(accVector, 2 * PI, about_point=ORIGIN, rate_func=linear),
-                                 Rotate(particle, 2 * PI, about_point=ORIGIN, rate_func=linear), run_time=10))
+                                 Rotate(particle, 2 * PI, about_point=ORIGIN, rate_func=linear), run_time=6))
 
         self.wait(0.5)
 
@@ -43,7 +44,7 @@ class CentripetalAcceleration2(Scene):
         #plane = NumberPlane()
         #self.add(plane)
         particle = Dot([2,0,0], color=RED)
-        particle.set_z_index(2)
+        particle.set_z_index(1)
         #Point of reference when we begin a segment of the trajectory (a side of the polygone)
         ref_begin = [2, 0, 0]
         velocityVector = Arrow(start=ref_begin, end=[2, 1, 0], buff=0, color=BLACK)
