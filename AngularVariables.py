@@ -53,7 +53,29 @@ class AngularVelocity(Scene):
         innerLine = Line([-PI*1.5, 1, 0], [PI*1.5,1,0], color=BLUE)
         outerLine = Line([-PI*3, 0, 0], [PI*3, 0, 0], color=RED)
 
-        self.play(Transform(innerCirc, innerLine), Transform(outerCirc, outerLine))
+        self.play(ReplacementTransform(innerCirc, innerLine), ReplacementTransform(outerCirc, outerLine))
+
+        innerLineScaled = Line([-3, 1, 0], [3, 1, 0], color=BLUE)
+        outerLineScaled = Line([-6, 0, 0], [6, 0, 0], color=RED)
+
+        self.play(ReplacementTransform(innerLine, innerLineScaled), ReplacementTransform(outerLine, outerLineScaled))
+
+        dotInner = Dot([-3, 1, 0], color=BLUE)
+        dotOuter = Dot([-6, 0, 0], color=RED)
+        dotOuter.set_z_index(1)
+        dotInner.set_z_index(1)
+
+        self.play(Create(dotInner), Create(dotOuter))
+
+        innerGreenLine = Line([-3, 1, 0], [3, 1, 0], color=GREEN)
+        outerGreenLine = Line([-6, 0, 0], [6, 0, 0], color=GREEN)
+
+        dotInner.generate_target()
+        dotInner.target.move_to([3, 1, 0])
+        dotOuter.generate_target()
+        dotOuter.target.move_to([6, 0, 0])
+
+        self.play(MoveToTarget(dotInner), MoveToTarget(dotOuter), Create(innerGreenLine), Create(outerGreenLine), rate_func=linear, run_time=6)
 
         self.wait()
 
